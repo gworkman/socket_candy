@@ -3,6 +3,9 @@ defmodule SocketCandy.Frame do
 
   defstruct [:id, :data, :timestamp]
 
+  @spec new(Enum.t()) :: %__MODULE__{}
+  def new(params), do: struct!(__MODULE__, params)
+
   @spec to_message(%__MODULE__{}) :: String.t()
 
   def to_message(%__MODULE__{id: id, data: nil}), do: "#{Integer.to_string(id, 16)} 0"

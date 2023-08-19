@@ -50,6 +50,10 @@ defmodule SocketCandy do
     Registry.unregister(SocketCandy.Registry, message_id)
   end
 
+  def send_frame(server, %Frame{} = frame) do
+    GenServer.cast(server, {:send, ~c"< send #{Frame.to_message(frame)} >"})
+  end
+
   @impl true
   def init(state) do
     case Map.get(state, :auto_start, true) do
@@ -63,6 +67,15 @@ defmodule SocketCandy do
         {:ok, state}
     end
   end
+
+  @impl true
+  def handle_cast({:send, data}, %{socket: socket} = state) when not is_nil(socket) do
+    :gen_tcp.send(socket, data)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({:send, _data}, state), do: {:noreply, state}
 
   @impl true
   def handle_call({:open, device}, from, state) do
