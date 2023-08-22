@@ -1,5 +1,5 @@
 defmodule SocketCandy.Frame do
-  @frame_regex ~r/(\d+) (\d+\.\d+) ([A-F0-9\s]+)/
+  @frame_regex ~r/([A-F0-9\s]+) (\d+\.\d+) ([A-F0-9\s]+)/
 
   defstruct [:id, :data, :timestamp]
 
