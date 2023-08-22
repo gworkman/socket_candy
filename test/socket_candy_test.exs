@@ -3,7 +3,7 @@ defmodule SocketCandyTest do
   doctest SocketCandy
 
   @test_address Application.compile_env!(:socket_candy, SocketCandyTest)[:address]
-  @test_port Application.compile_env!(:socket_candy, SocketCandyTest)[:address]
+  @test_port Application.compile_env!(:socket_candy, SocketCandyTest)[:port]
 
   test "open the server" do
     {:ok, pid} = SocketCandy.start_link(address: @test_address, auto_start: false)
@@ -30,14 +30,23 @@ defmodule SocketCandyTest do
     assert !is_nil(frame.timestamp)
   end
 
+  test "parse frame with data and hexadecimal ID" do
+    frame = SocketCandy.Frame.from_message("08A 1692703490.057840 00000000")
+
+    assert frame.id == 0x08A
+    assert frame.data == <<0x00, 0x00, 0x00, 0x00>>
+    assert !is_nil(frame.timestamp)
+  end
+
   describe "subscribe to frames" do
     test "perform subscription" do
-      {:ok, pid} = SocketCandy.start_link(address: @test_address, auto_start: true)
+      {:ok, _pid} =
+        SocketCandy.start_link(address: @test_address, auto_start: true, device: "can0")
 
-      {:ok, _pid} = SocketCandy.subscribe(0x081)
+      {:ok, _pid} = SocketCandy.subscribe(0x085)
 
       receive do
-        {:can_frame, frame} -> assert frame.id == 0x081
+        {:can_frame, frame} -> assert frame.id == 0x085
       after
         1000 -> raise "receive message timed out"
       end
